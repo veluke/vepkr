@@ -186,8 +186,8 @@ function findKey(array, key, value) {
     return null;
 }
 
-http.listen(66, function() {
-    console.log('listening on *:66');
+http.listen(3000, function() {
+    console.log('listening on *:3000');
 });
 
 function startNewGame(room) {
