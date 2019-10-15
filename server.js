@@ -38,19 +38,23 @@ io.on('connection', function(socket) {
         turns.push({
             'room': room,
             'turn': socket.id,
+			'waiting': "",
 			'pot' : 0,
 			'currentbet' : -1,
 			'state' : 0,
 			'winner' : "",
 			'p1funds' : 100,
 			'p2funds' : 100,
+			'p1' : socket.id,
+			'p2' : ""
 			
         });
+		var currentTurn = findKey(turns,'room',room);
         rooms.push(room);
         users.room = 1;
         console.log(socket.id + ' joined ' + room + " | " + users.room);
         player1 = socket.id;
-        console.log("player 1 = " + player1);
+        console.log("player 1 = " + currentTurn.p1);
         io.emit('roomUpdate', room);
     });
 
@@ -63,8 +67,10 @@ io.on('connection', function(socket) {
             }
         }
         if (users.room < 2) {
-            player2 = socket.id;
-            console.log("player 2 = " + player2);
+            var currentTurn = findKey(turns,'room', room);
+			currentTurn.p2 = socket.id;
+			currentTurn.waiting = socket.id;
+            console.log("player 2 = " + currentTurn.p2);
             socket.join(room);
             socket.emit('updateActiveRoom', room);
             users.room++;
@@ -96,6 +102,8 @@ io.on('connection', function(socket) {
         updating = 0;
         var currentTurn = findKey(turns, 'room', activeRoom);
 		var currentGame = findKey(games, 'room', activeRoom);
+				io.to(currentTurn.turn).emit('notify', "Other players turn...");
+		currentTurn.waiting = currentTurn.turn;
         currentTurn.turn = socket.id;
         console.log('updateTurn: ' + currentTurn.turn);
 		var pot = findKey(turns, 'room', activeRoom).pot;
@@ -120,17 +128,25 @@ io.on('connection', function(socket) {
 				
 				if(currentTurn.winner != "split"){
 				var winner = currentTurn.winner;
+				if (currentTurn.p1 == winner){
+				io.to(currentTurn.p2).emit("notifyBet", "Other player won "+currentTurn.pot+" :(");
+				}
+				else if (currentTurn.p1 != winner){
+				io.to(currentTurn.p1).emit("notifyBet", "Other player won "+currentTurn.pot+" :(");
+				}
+				io.to(winner).emit("notifyBet", "You won "+ currentTurn.pot+"! :D");
 				io.to(winner).emit("claimPrize", currentTurn.pot);
 				currentTurn.pot = 0;
 				}
 				
 				else if (currentTurn.winner == "split"){
+				io.to(activeRoom).emit('notifyBet', "Split pot! Both players receive "+ currentTurn.pot * 0.5);
 				io.to(activeRoom).emit('splitPrize', currentTurn.pot * 0.5);
 				currentTurn.pot = 0;
 				}
 				
-				io.to(player1).emit('checkHands', currentGame.p2a, currentGame.p2b);
-				io.to(player2).emit('checkHands', currentGame.p1a, currentGame.p1b);
+				io.to(currentTurn.p1).emit('checkHands', currentGame.p2a, currentGame.p2b);
+				io.to(currentTurn.p2).emit('checkHands', currentGame.p1a, currentGame.p1b);
 				currentTurn.currentbet = -1;
 				currentTurn.state = 0;
 				populateDeck(activeRoom);	
@@ -147,6 +163,8 @@ io.on('connection', function(socket) {
 				if (activeTurn.currentbet == -1){activeTurn.currentbet = 0};
 				var betDiff = (parseInt(bet) - activeTurn.currentbet)
 			io.to(activeRoom).emit('updateBet', betDiff);
+			io.to(activeTurn.waiting).emit("notifyBet", "Other player raised the bet by " +betDiff);
+			io.to(activeTurn.turn).emit("notifyBet", "You raised the bet by " +betDiff);
 			console.log(socket.id + " raised bet: " + betDiff);
 			activeTurn.pot = parseInt(activeTurn.pot) + parseInt(bet);
 			console.log("current pot: " + activeTurn.pot);
@@ -156,6 +174,8 @@ io.on('connection', function(socket) {
 			else if (bet == activeTurn.currentbet){
 				io.to(activeRoom).emit('updateBet', 0);
 			console.log(socket.id + " called bet: " + bet);
+						io.to(activeTurn.waiting).emit("notifyBet", "Other player called the bet...");
+			io.to(activeTurn.turn).emit("notifyBet", "You called the bet...");
 			activeTurn.pot = parseInt(activeTurn.pot) + parseInt(bet);
 			console.log("current pot: " + activeTurn.pot);
 			activeTurn.currentbet = parseInt(bet);
@@ -168,6 +188,8 @@ io.on('connection', function(socket) {
         if (activeTurn.turn == socket.id) {
 			switch(turnID){
 			case "fold":
+			io.to(activeTurn.waiting).emit("notifyBet", "Other player folded!");
+			io.to(activeTurn.turn).emit("notifyBet", "You folded!");
 			console.log(socket.id + " folded.");
             nextTurn(activeRoom, 'fold');
 			populateDeck(activeRoom);
@@ -191,12 +213,16 @@ http.listen(3000, function() {
 });
 
 function startNewGame(room) {
+	var current = findKey(turns,'room',room);
+	io.to(current.p1).emit('notify', "It's your turn!");
+	io.to(current.p2).emit('notify', "Other players turn...");
     console.log("starting new game in " + room);
     populateDeck(room);
 }
 
 
 function populateDeck(room) {
+	var currentTurn = findKey(turns,'room',room);
 	io.to(room).emit("startNewHand");
     deck = [];
     cards = {};
@@ -281,9 +307,10 @@ function populateDeck(room) {
             p1Flush.s++;
             break;
     }
+	var currentTurn = findKey(turns,'room',room);
     p1.push(pickedCard);
-    io.to(player1).emit('newPlayerHand', newHand);
-    console.log("sent new hand to " + player1);
+    io.to(currentTurn.p1).emit('newPlayerHand', newHand);
+    console.log("sent new hand to " + currentTurn.p1);
 
     var newHand = [];
     var cardPosition = Math.floor(Math.random() * deck.length);
@@ -326,8 +353,8 @@ function populateDeck(room) {
             p2Flush.s++;
             break;
     }
-    io.to(player2).emit('newPlayerHand', newHand);
-    console.log("sent new hand to " + player2);
+    io.to(currentTurn.p2).emit('newPlayerHand', newHand);
+    console.log("sent new hand to " + currentTurn.p2);
     var cardPosition = Math.floor(Math.random() * deck.length);
     var pickedCard = deck[cardPosition];
     deck.splice(cardPosition, 1);
@@ -578,11 +605,11 @@ function populateDeck(room) {
 	var currentTurn = findKey(turns, 'room', room);
 	
 	if (p1Score > p2Score) {
-		currentTurn.winner = player1;
+		currentTurn.winner = currentTurn.p1;
         console.log("player 1 wins");
 
     } else if (p1Score < p2Score) {
-		currentTurn.winner = player2;
+		currentTurn.winner = currentTurn.p2;
         console.log("player 2 wins");
 
     } else if (p1Score == p2Score) {
@@ -615,10 +642,10 @@ function populateDeck(room) {
         if (p1Kicker > p2Kicker) {
 			
             console.log("player 1 wins");
-			currentTurn.winner = player1;
+			currentTurn.winner = currentTurn.p1;
         } else if (p1Kicker < p2Kicker) {
             console.log("player 2 wins");
-			currentTurn.winner = player2;
+			currentTurn.winner = currentTurn.p2;
         } else if (p1Kicker == p2Kicker) {
             console.log("split pot");
 			currentTurn.winner = "split";

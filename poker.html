@@ -17,14 +17,14 @@
 
     <body style="background-color:lightblue;">
 	
-	<div style="background-color:white; border-radius:16px; margin:15px; padding:15px;">
+	<div style="background-color:white; border-radius:16px; margin:15px; padding:15px; font-size:0.75em;">
 	<input id="roomInput" placeholder="Create a room..."></input>
 	<button id="joinRoomButton">Create Room</button><br>
 	Or join an existing one:
 	<ul id="roomList"></ul>
 	</div>
 	
-        <div style="background-color:white; border-radius:16px; margin:15px; padding:15px;">
+        <div style="background-color:white; border-radius:16px; margin:15px; padding:15px; font-size:0.75em;">
             <!-- Optional JavaScript -->
             <!-- jQuery first, then Popper.js, then Bootstrap JS -->
             <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -34,7 +34,9 @@
             <div class="input-group mb-3">
                 <input type="text" class="form-control" placeholder="Bet amount..." aria-label="betAmount" aria-describedby="basic-addon1" id="betAmountTxt" style="border-radius-top:16px">
             </div>
-            <button type="button" class="btn btn-danger" id="foldBtn">Fold</button>
+			<span id="notification">Turn notifications</span><br>
+			<span id="notification2">Bet notifications</span><br>
+            <br><button type="button" class="btn btn-danger" id="foldBtn">Fold</button>
             <button type="button" class="btn btn-warning" id="checkBtn">Check</button>
 			<button type="button" class="btn btn-info" id="callBtn">Call</button>
             <button type="button" class="btn btn-success" id="placeBetBtn">Raise</button><br><br>
