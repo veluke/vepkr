@@ -1,0 +1,121 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="cards.css" crossorigin="anonymous">
+
+    <title>Poker.js</title>
+</head>
+<b>
+
+    <body style="background-color:lightblue;">
+	
+	<div style="background-color:white; border-radius:16px; margin:15px; padding:15px;">
+	<input id="roomInput" placeholder="Create a room..."></input>
+	<button id="joinRoomButton">Create Room</button><br>
+	Or join an existing one:
+	<ul id="roomList"></ul>
+	</div>
+	
+        <div style="background-color:white; border-radius:16px; margin:15px; padding:15px;">
+            <!-- Optional JavaScript -->
+            <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Bet amount..." aria-label="betAmount" aria-describedby="basic-addon1" id="betAmountTxt" style="border-radius-top:16px">
+            </div>
+            <button type="button" class="btn btn-danger" id="foldBtn">Fold</button>
+            <button type="button" class="btn btn-warning" id="checkBtn">Check</button>
+			<button type="button" class="btn btn-info" id="callBtn">Call</button>
+            <button type="button" class="btn btn-success" id="placeBetBtn">Raise</button><br><br>
+            Funds: <span id="currentFundsText">100</span><br>
+            To call: <span id="currentBetText">0</span><br>
+			Pot: <span id="potTxt">0</span>
+
+            <br><br><br>
+
+            <div class="container" style="max-width:90%">
+                <div class="row">
+                    <div class="col-sm">
+                        <div class="card card-facedown" id="pCard1"><span></span></div>
+                    </div>
+                    <div class="col-sm">
+                        <div class="card card-facedown" id="pCard2"><span></span></div>
+                    </div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                </div>
+            </div>
+            <br>
+            <div class="container" style="max-width:90%">
+                <div class="row">
+                    <div class="col-sm">
+                        <div class="card card-facedown" id="bCard1"><span></span></div>
+                    </div>
+                    <div class="col-sm">
+                        <div class="card card-facedown" id="bCard2"><span></span></div>
+                    </div>
+                    <div class="col-sm">
+                        <div class="card card-facedown" id="bCard3"><span></span></div>
+                    </div>
+                    <div class="col-sm">
+                        <div class="card card-facedown" id="bCard4"><span></span></div>
+                    </div>
+                    <div class="col-sm">
+                        <div class="card card-facedown" id="bCard5"><span></span></div>
+                    </div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                </div>
+            </div>
+            <br>
+            <div class="container" style="max-width:90%">
+                <div class="row">
+                    <div class="col-sm">
+                        <div class="card card-facedown" id="cCard1"><span></span></div>
+                    </div>
+                    <div class="col-sm">
+                        <div class="card card-facedown" id="cCard2"><span></span></div>
+                    </div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                    <div class="col-sm"></div>
+                </div>
+            </div>
+            <br>
+            <div>
+                <center>
+                    <span id="alertTxt">...</span>
+            </div>
+        </div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="poker.js"></script>
+    </body>
+</html>
